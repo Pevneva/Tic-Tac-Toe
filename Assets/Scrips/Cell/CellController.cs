@@ -19,7 +19,7 @@ namespace Scrips.Cell
             _view.Clicked += OnViewClicked;
             _model.StateChanged += OnModelStateChanged;
 
-            RenderImage();
+            RenderImage(_model.State);
         }
 
         public void OnPlayerChanged(int currentPlayer) =>
@@ -42,12 +42,12 @@ namespace Scrips.Cell
             _view.Clicked -= OnViewClicked;
         }
 
-        private void OnModelStateChanged(int playerNumber) =>
-            RenderImage();
+        private void OnModelStateChanged(int state) =>
+            RenderImage(state);
 
-        private void RenderImage()
+        private void RenderImage(int state)
         {
-            switch (_model.State)
+            switch (state)
             {
                 case 0:
                     _view.RenderImage(CellImageType.NONE);

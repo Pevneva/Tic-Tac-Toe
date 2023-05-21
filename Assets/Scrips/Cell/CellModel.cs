@@ -5,9 +5,9 @@ namespace Scrips.Cell
     public class CellModel
     {
         public int State { get; private set; }
-        public CellModel() => State = 0;
+        public CellModel() => ChangeState(0);
         
-        public CellModel(int cellState) => State = cellState;
+        public CellModel(int cellState) => ChangeState(cellState);
 
         public event Action<int> StateChanged;
 

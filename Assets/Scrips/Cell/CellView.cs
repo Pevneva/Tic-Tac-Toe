@@ -13,16 +13,8 @@ namespace Scrips.Cell
 
         public event Action Clicked;
 
-        private Color _startColor;
-
-        private void OnEnable()
-        {
-            _startColor = _image.color;
-            
-            ResetImage();
-            
+        private void OnEnable() => 
             _button.onClick.AddListener(OnClickButton);
-        }
 
         public void ResetImage() => _image.color = Color.clear;
 
@@ -43,7 +35,7 @@ namespace Scrips.Cell
                     break;
             }
             
-            _image.color = _startColor;
+            _image.color = Color.white;
         }
 
         private void OnClickButton() => Clicked?.Invoke();
