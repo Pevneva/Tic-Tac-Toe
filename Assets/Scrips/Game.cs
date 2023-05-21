@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Scrips.Cell;
 using Scrips.DataSaving;
+using TMPro;
 using UnityEngine;
 
 namespace Scrips
@@ -13,6 +14,7 @@ namespace Scrips
         [SerializeField] private GameObject _cellsParent;
         [SerializeField] private CurrentPlayerView _currentPlayerView;
         [SerializeField] private LineView _lineView;
+        [SerializeField] private TextMeshProUGUI _winText;
 
         private int _currentPlayer;
         private CellController _cellController;
@@ -39,6 +41,8 @@ namespace Scrips
 
         private void InitStartData()
         {
+            HideWinMessage();
+                
             SetPlayerNumber(_loadedPlayerNumber != 0 ? _loadedPlayerNumber : 1);
 
             _lineView.HideLine();
@@ -87,18 +91,31 @@ namespace Scrips
 
         private void OnCellClicked()
         {
-            if (_endGameController.IsGameEnded(_currentPlayer) == false)
+            if (_endGameController.IsGameEnded(_currentPlayer, out bool isCurrentPlayerWon) == false)
             {
                 ChangePlayerNumber();
                 SaveProgress();
             }
             else
             {
+                ShowWinMessage(isCurrentPlayerWon);
                 ClearProgress();
                 RemoveSubscribes();
                 Invoke(nameof(RestartGame), 3);
             }
         }
+
+        private void ShowWinMessage(bool isCurrentPlayerWon)
+        {
+            _winText.gameObject.SetActive(true);
+            
+            if (isCurrentPlayerWon)
+                _winText.text = "Player " + _currentPlayer + " WON !!!";
+            else
+                _winText.text = "DRAW";
+        }
+
+        private void HideWinMessage() => _winText.gameObject.SetActive(false);
 
         private void RestartGame()
         {

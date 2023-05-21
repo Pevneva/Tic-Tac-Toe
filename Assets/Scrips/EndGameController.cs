@@ -25,15 +25,21 @@ namespace Scrips
         public void AddModel(CellModel cellModel) => 
             _cellModels.Add(cellModel);
 
-        public bool IsGameEnded(int currentPlayer)
+        public bool IsGameEnded(int currentPlayer, out bool isCurrentPlayerWon)
         {
             ShowArea(); //todo 
+            
+            isCurrentPlayerWon = false;
 
-            if (IsRowPassed(currentPlayer)) return true;
+            if (IsRowPassed(currentPlayer) || IsColumnPassed(currentPlayer) || IsDiagonalPassed(currentPlayer))
+            {
+                isCurrentPlayerWon = true;
+                return true;
+            }
 
-            if (IsColumnPassed(currentPlayer)) return true;
-
-            if (IsDiagonalPassed(currentPlayer)) return true;
+            // if (IsColumnPassed(currentPlayer)) return true;
+            //
+            // if (IsDiagonalPassed(currentPlayer)) return true;
 
             if (IsAmountOfTurnsFinished()) return true;
 
@@ -42,13 +48,8 @@ namespace Scrips
 
         public void CleanUp() => _cellModels.Clear();
 
-        public string GetCellStates()
-        {
-            string result = _cellModels.StatesToString();
-            Debug.Log("SAVING RESULT = " + result);
-            
-            return result;
-        }
+        public string GetCellStates() => 
+            _cellModels.StatesToString();
 
         private bool IsAmountOfTurnsFinished()
         {
