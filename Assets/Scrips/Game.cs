@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DefaultNamespace;
 using Scrips.Cell;
 using Scrips.DataSaving;
 using UnityEngine;
@@ -27,8 +26,8 @@ namespace Scrips
         private void Awake()
         {
             _cellViews = _cellsParent.transform.GetComponentsInChildren<CellView>();
-            _playerProgressSaver = new PlayerProgressSaver();
             
+            _playerProgressSaver = new PlayerProgressSaver();
             _playerProgress = _playerProgressSaver.LoadProgress();
 
             InitStartData();
@@ -103,6 +102,7 @@ namespace Scrips
             ResetImages();
 
             _endGameController.CleanUp();
+            
             _playerProgress = new PlayerProgress();
 
             InitStartData();

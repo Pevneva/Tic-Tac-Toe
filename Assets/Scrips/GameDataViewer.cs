@@ -28,7 +28,7 @@ namespace Scrips
             if (isCurrentPlayerWon)
                 _winText.text = "Player " + currentPlayer + " WON !!!";
             else
-                _winText.text = "DRAW";
+                _winText.text = " --- DRAW ---";
         }
 
         public void HideWinMessage() => _winText.gameObject.SetActive(false);

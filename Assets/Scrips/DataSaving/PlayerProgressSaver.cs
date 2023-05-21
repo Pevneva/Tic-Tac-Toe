@@ -1,17 +1,10 @@
-﻿using System;
-using Scrips.DataSaving;
-using UnityEngine;
-
-namespace DefaultNamespace
+﻿namespace Scrips.DataSaving
 {
     public class PlayerProgressSaver
     {
         private const string PlayerProgressKey = "PlayerProgress";
 
-        private Char[] _loadedCellStateIndexes;
-        private int _loadedPlayerNumber;
-        private int _loadedAmountOfTurns;
-        private PlayerProgress _playerProgress = new PlayerProgress();
+        private readonly PlayerProgress _playerProgress = new PlayerProgress();
 
         public void SaveProgress(string cellStates, int currentPlayerIndex, int amountOfDoneTurns)
         {
