@@ -10,6 +10,7 @@ namespace Scrips
     {
         [SerializeField] private GameObject _cellsParent;
         [SerializeField] private GameDataViewer _dataViewer;
+        [SerializeField] private SaveLoadPanel _saveLoadPanel;
 
         private int _currentPlayer;
         private CellController _cellController;
@@ -26,11 +27,25 @@ namespace Scrips
         private void Awake()
         {
             _cellViews = _cellsParent.transform.GetComponentsInChildren<CellView>();
+
             
             _playerProgressSaver = new PlayerProgressSaver();
-            _playerProgress = _playerProgressSaver.LoadProgress();
+            _playerProgress = new PlayerProgress();
 
             InitStartData();
+            
+            _saveLoadPanel.SaveButtonClicked += OnSaveButtonClicked;
+            _saveLoadPanel.LoadButtonClicked += OnLoadButtonClicked;
+        }
+
+        private void OnSaveButtonClicked() => 
+            _playerProgressSaver.SaveProgress(_endGameController.GetCellStates(), _currentPlayer, _endGameController.AmountOfTurns);
+
+        private void OnLoadButtonClicked()
+        {
+            _playerProgress = _playerProgressSaver.LoadProgress();
+            RemoveSubscribes();
+            RestartGame();
         }
 
         private void InitStartData()
@@ -39,7 +54,7 @@ namespace Scrips
             _dataViewer.HideLine();
 
             SetPlayerNumber(_playerProgress.CurrentPlayerIndex != 0 ? _playerProgress.CurrentPlayerIndex : 1);
-
+            
             _endGameController = new EndGameController(_playerProgress?.AmountDoneTurns ?? 0);
             _endGameController.RowPassed += OnRowPassed;
             _endGameController.ColumnPassed += OnColumnPassed;
@@ -85,13 +100,11 @@ namespace Scrips
             if (_endGameController.IsGameEnded(_currentPlayer, out bool isCurrentPlayerWon) == false)
             {
                 ChangePlayerNumber();
-                _playerProgressSaver.SaveProgress(_endGameController.GetCellStates(), _currentPlayer,
-                    _endGameController.AmountOfTurns);
             }
             else
             {
                 _dataViewer.ShowWinMessage(isCurrentPlayerWon, _currentPlayer);
-                _playerProgressSaver.ClearProgress();
+                _playerProgress = new PlayerProgress();
                 RemoveSubscribes();
                 Invoke(nameof(RestartGame), 3);
             }
@@ -102,8 +115,6 @@ namespace Scrips
             ResetImages();
 
             _endGameController.CleanUp();
-            
-            _playerProgress = new PlayerProgress();
 
             InitStartData();
         }
@@ -132,7 +143,7 @@ namespace Scrips
         private void SetPlayerNumber(int playerNumber)
         {
             _currentPlayer = playerNumber;
-
+            
             PlayerChanged?.Invoke(_currentPlayer);
 
             _dataViewer.ShowCurrentPlayer(_currentPlayer);
