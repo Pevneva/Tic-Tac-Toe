@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Scrips.Cell;
 using Scrips.DataSaving;
-using UnityEngine;
 
 namespace Scrips
 {
@@ -27,8 +26,6 @@ namespace Scrips
 
         public bool IsGameEnded(int currentPlayer, out bool isCurrentPlayerWon)
         {
-            ShowArea(); //todo 
-            
             isCurrentPlayerWon = false;
 
             if (IsRowPassed(currentPlayer) || IsColumnPassed(currentPlayer) || IsDiagonalPassed(currentPlayer))
@@ -36,10 +33,6 @@ namespace Scrips
                 isCurrentPlayerWon = true;
                 return true;
             }
-
-            // if (IsColumnPassed(currentPlayer)) return true;
-            //
-            // if (IsDiagonalPassed(currentPlayer)) return true;
 
             if (IsAmountOfTurnsFinished()) return true;
 
@@ -56,10 +49,7 @@ namespace Scrips
             AmountOfTurns++;
 
             if (AmountOfTurns >= _size * _size)
-            {
-                Debug.Log("!!!! НИЧЬЯ !!!!");
                 return true;
-            }
 
             return false;
         }
@@ -71,7 +61,6 @@ namespace Scrips
                 if (_cellModels[i].State == currentPlayer && _cellModels[i + 1].State == currentPlayer &&
                     _cellModels[i + 2].State == currentPlayer)
                 {
-                    Debug.Log("Player " + currentPlayer + " WIN !!!");
                     RowPassed?.Invoke(i);
                     return true;
                 }
@@ -87,7 +76,6 @@ namespace Scrips
                 if (_cellModels[i].State == currentPlayer && _cellModels[i + _size].State == currentPlayer &&
                     _cellModels[i + _size * 2].State == currentPlayer)
                 {
-                    Debug.Log("Player " + currentPlayer + " WIN !!!");
                     ColumnPassed?.Invoke(i);
                     return true;
                 }
@@ -101,7 +89,6 @@ namespace Scrips
             if (_cellModels[0].State == currentPlayer && _cellModels[_size + 1].State == currentPlayer &&
                 _cellModels[_size * 2 + 2].State == currentPlayer)
             {
-                Debug.Log("Player " + currentPlayer + " WIN !!!");
                 DiagonalPassed?.Invoke(1);
                 return true;
             }
@@ -109,20 +96,11 @@ namespace Scrips
             if (_cellModels[2 * _size].State == currentPlayer && _cellModels[_size + 1].State == currentPlayer &&
                 _cellModels[2].State == currentPlayer)
             {
-                Debug.Log("Player " + currentPlayer + " WIN !!!");
                 DiagonalPassed?.Invoke(2);
                 return true;
             }
 
             return false;
-        }
-
-        private void ShowArea() //todo
-        {
-            Debug.Log("=========== ShowArea ==========="); //todo
-
-            for (int i = 0; i <= _size * _size - 1; i += _size)
-                Debug.Log(_cellModels[i].State + " " + _cellModels[i + 1].State + " " + _cellModels[i + 2].State);
         }
     }
 }
