@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Scrips.Cell;
 using Scrips.DataSaving;
-using TMPro;
 using UnityEngine;
 
 namespace Scrips
@@ -12,9 +11,7 @@ namespace Scrips
         private const string PlayerProgressKey = "PlayerProgress";
 
         [SerializeField] private GameObject _cellsParent;
-        [SerializeField] private CurrentPlayerView _currentPlayerView;
-        [SerializeField] private LineView _lineView;
-        [SerializeField] private TextMeshProUGUI _winText;
+        [SerializeField] private GameDataViewer _dataViewer;
 
         private int _currentPlayer;
         private CellController _cellController;
@@ -41,11 +38,11 @@ namespace Scrips
 
         private void InitStartData()
         {
-            HideWinMessage();
+            _dataViewer.HideWinMessage();
                 
             SetPlayerNumber(_loadedPlayerNumber != 0 ? _loadedPlayerNumber : 1);
 
-            _lineView.HideLine();
+            _dataViewer.HideLine();
 
             _playerProgress = new PlayerProgress();
 
@@ -60,13 +57,13 @@ namespace Scrips
         }
 
         private void OnRowPassed(int cellNumber) =>
-            _lineView.ShowHorizontalLine(cellNumber);
+            _dataViewer.ShowHorizontalLine(cellNumber);
 
         private void OnColumnPassed(int cellNumber) =>
-            _lineView.ShowVerticalLine(cellNumber);
+            _dataViewer.ShowVerticalLine(cellNumber);
 
         private void OnDiagonalPassed(int index) =>
-            _lineView.ShowDiagonalLine(index);
+            _dataViewer.ShowDiagonalLine(index);
 
         private void InitCell(CellView cellView, int index)
         {
@@ -98,24 +95,12 @@ namespace Scrips
             }
             else
             {
-                ShowWinMessage(isCurrentPlayerWon);
+                _dataViewer.ShowWinMessage(isCurrentPlayerWon, _currentPlayer);
                 ClearProgress();
                 RemoveSubscribes();
                 Invoke(nameof(RestartGame), 3);
             }
         }
-
-        private void ShowWinMessage(bool isCurrentPlayerWon)
-        {
-            _winText.gameObject.SetActive(true);
-            
-            if (isCurrentPlayerWon)
-                _winText.text = "Player " + _currentPlayer + " WON !!!";
-            else
-                _winText.text = "DRAW";
-        }
-
-        private void HideWinMessage() => _winText.gameObject.SetActive(false);
 
         private void RestartGame()
         {
@@ -144,7 +129,7 @@ namespace Scrips
 
             PlayerChanged?.Invoke(_currentPlayer);
 
-            _currentPlayerView.RenderCurrentPlayer(_currentPlayer);
+            _dataViewer.ShowCurrentPlayer(_currentPlayer);
         }
 
         private void SetPlayerNumber(int playerNumber)
@@ -153,7 +138,7 @@ namespace Scrips
 
             PlayerChanged?.Invoke(_currentPlayer);
 
-            _currentPlayerView.RenderCurrentPlayer(_currentPlayer);
+            _dataViewer.ShowCurrentPlayer(_currentPlayer);
         }
 
 

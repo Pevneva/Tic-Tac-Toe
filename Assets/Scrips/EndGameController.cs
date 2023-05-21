@@ -16,10 +16,8 @@ namespace Scrips
         public event Action<int> ColumnPassed;
         public event Action<int> DiagonalPassed;
 
-        public EndGameController(int amountOfTurns)
-        {
+        public EndGameController(int amountOfTurns) => 
             AmountOfTurns = amountOfTurns;
-        }
 
         public void AddModel(CellModel cellModel) => 
             _cellModels.Add(cellModel);
