@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 using Scrips.Cell;
 using Scrips.DataSaving;
 using UnityEngine;
@@ -8,8 +9,6 @@ namespace Scrips
 {
     public class Game : MonoBehaviour
     {
-        private const string PlayerProgressKey = "PlayerProgress";
-
         [SerializeField] private GameObject _cellsParent;
         [SerializeField] private GameDataViewer _dataViewer;
 
@@ -19,19 +18,18 @@ namespace Scrips
         private readonly List<CellController> _cellControllers = new List<CellController>();
 
         private EndGameController _endGameController;
-        private PlayerProgress _playerProgress;
         private CellModel _cellModel;
-        private Char[] _loadedCellStateIndexes;
-        private int _loadedPlayerNumber;
-        private int _loadedAmountOfTurns;
+        private PlayerProgressSaver _playerProgressSaver;
+        private PlayerProgress _playerProgress;
 
         public event Action<int> PlayerChanged;
 
         private void Awake()
         {
             _cellViews = _cellsParent.transform.GetComponentsInChildren<CellView>();
-
-            LoadProgress();
+            _playerProgressSaver = new PlayerProgressSaver();
+            
+            _playerProgress = _playerProgressSaver.LoadProgress();
 
             InitStartData();
         }
@@ -39,15 +37,11 @@ namespace Scrips
         private void InitStartData()
         {
             _dataViewer.HideWinMessage();
-                
-            SetPlayerNumber(_loadedPlayerNumber != 0 ? _loadedPlayerNumber : 1);
-
             _dataViewer.HideLine();
 
-            _playerProgress = new PlayerProgress();
+            SetPlayerNumber(_playerProgress.CurrentPlayerIndex != 0 ? _playerProgress.CurrentPlayerIndex : 1);
 
-            _endGameController = new EndGameController(_loadedAmountOfTurns);
-
+            _endGameController = new EndGameController(_playerProgress?.AmountDoneTurns ?? 0);
             _endGameController.RowPassed += OnRowPassed;
             _endGameController.ColumnPassed += OnColumnPassed;
             _endGameController.DiagonalPassed += OnDiagonalPassed;
@@ -67,9 +61,10 @@ namespace Scrips
 
         private void InitCell(CellView cellView, int index)
         {
-            if (_loadedCellStateIndexes != null)
+            if (_playerProgress?.AmountDoneTurns != 0)
             {
-                if (Int32.TryParse(_loadedCellStateIndexes[index].ToString(), out int indexInt))
+                Char[] states = _playerProgress.CellStateIndexes.ToCharArray();
+                if (Int32.TryParse(states[index].ToString(), out int indexInt))
                     _cellModel = new CellModel(indexInt);
             }
             else
@@ -91,12 +86,13 @@ namespace Scrips
             if (_endGameController.IsGameEnded(_currentPlayer, out bool isCurrentPlayerWon) == false)
             {
                 ChangePlayerNumber();
-                SaveProgress();
+                _playerProgressSaver.SaveProgress(_endGameController.GetCellStates(), _currentPlayer,
+                    _endGameController.AmountOfTurns);
             }
             else
             {
                 _dataViewer.ShowWinMessage(isCurrentPlayerWon, _currentPlayer);
-                ClearProgress();
+                _playerProgressSaver.ClearProgress();
                 RemoveSubscribes();
                 Invoke(nameof(RestartGame), 3);
             }
@@ -107,6 +103,7 @@ namespace Scrips
             ResetImages();
 
             _endGameController.CleanUp();
+            _playerProgress = new PlayerProgress();
 
             InitStartData();
         }
@@ -139,34 +136,6 @@ namespace Scrips
             PlayerChanged?.Invoke(_currentPlayer);
 
             _dataViewer.ShowCurrentPlayer(_currentPlayer);
-        }
-
-
-        private void SaveProgress()
-        {
-            _playerProgress.CellStateIndexes = _endGameController.GetCellStates();
-            _playerProgress.CurrentPlayerIndex = _currentPlayer;
-            _playerProgress.AmountDoneTurns = _endGameController.AmountOfTurns;
-
-            SaveManager.Save(PlayerProgressKey, _playerProgress);
-        }
-
-        private void LoadProgress()
-        {
-            PlayerProgress playerProgress = SaveManager.Load<PlayerProgress>(PlayerProgressKey);
-
-            _loadedPlayerNumber = playerProgress.CurrentPlayerIndex;
-            _loadedCellStateIndexes = playerProgress.CellStateIndexes?.ToCharArray();
-            _loadedAmountOfTurns = playerProgress.AmountDoneTurns;
-        }
-
-        private void ClearProgress()
-        {
-            _loadedCellStateIndexes = null;
-            _loadedPlayerNumber = 0;
-            _loadedAmountOfTurns = 0;
-
-            SaveManager.ResetData(PlayerProgressKey);
         }
     }
 }
